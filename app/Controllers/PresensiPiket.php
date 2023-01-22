@@ -241,7 +241,7 @@ class PresensiPiket extends BaseController
 
 		// move file and create new folder if not exist
 		if (!file_exists('assets/img/presensi-piket')) {
-			mkdir('assets/img/presensi-piket', 755);
+			mkdir('assets/img/presensi-piket', 0777, true);
 		}
 
 		// fit image
@@ -381,7 +381,7 @@ class PresensiPiket extends BaseController
 
 		// move file and create new folder if not exist
 		if (!file_exists('assets/img/presensi-piket')) {
-			mkdir('assets/img/presensi-piket', 755);
+			mkdir('assets/img/presensi-piket', 0777, true);
 		}
 
 		// fit image

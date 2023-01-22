@@ -473,7 +473,7 @@ class Presensi extends BaseController
 
 		// move file and create new folder if not exist
 		if (!file_exists('assets/img/presensi')) {
-			mkdir('assets/img/presensi', 755);
+			mkdir('assets/img/presensi', 0777, true);
 		}
 
 		// fit image
@@ -753,7 +753,7 @@ class Presensi extends BaseController
 
 		// move file and create new folder if not exist
 		if (!file_exists('assets/img/presensi')) {
-			mkdir('assets/img/presensi', 755);
+			mkdir('assets/img/presensi', 0777, true);
 		}
 
 		// fit image
