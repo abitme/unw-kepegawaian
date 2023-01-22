@@ -365,7 +365,7 @@ class PresensiPiket extends BaseController
 		// set file
 		$base64 = base64_decode($input->photo);
 		$fileName = date('YmdHi') . "-id-$pegawai->id-" . uniqid() . '.png';
-		file_put_contents($fileName, $base64); // placed iapn public folder
+		file_put_contents($fileName, $base64); // placed in public folder
 		// $photo = new \CodeIgniter\Files\File(ROOTPATH . "/public/$file");
 
 		// save data
