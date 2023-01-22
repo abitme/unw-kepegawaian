@@ -1,0 +1,280 @@
+/* nestable modification */
+#nestable-output {
+  display: none;
+}
+
+/* .dd-handle {
+  height: 40px;
+}
+
+.dd3-content {
+  height: 40px;
+}
+
+.dd-item,
+.dd-empty,
+.dd-placeholder {
+  line-height: 30px;
+  font-size: 14px;
+} */
+
+/* select2 modification */
+.select2-search--inline {
+  display: contents;
+  /*this will make the container disappear, making the child the one who sets the width of the element*/
+}
+
+.select2-search__field:placeholder-shown {
+  width: 100% !important;
+  /*makes the placeholder to be 100% of the width while there are no options selected*/
+}
+
+.select2-container--default
+  .select2-selection--multiple
+  .select2-selection__rendered {
+  padding: 0;
+}
+
+.select2-container--default
+  .select2-selection--multiple
+  .select2-selection__choice {
+  margin-right: 0;
+  margin-left: 8px;
+}
+
+.select2-container--default .select2-selection--single {
+  height: calc(1.5em + 0.5rem + 2px) !important;
+}
+
+.select2-container--default
+  .select2-selection--single
+  .select2-selection__rendered {
+  line-height: calc(1.5em + 0.6rem + 2px) !important;
+  font-size: 0.875rem;
+}
+
+.select2-container--default
+  .select2-selection--single
+  .select2-selection__arrow {
+  height: calc(1.5em + 0.5rem + 2px) !important;
+}
+
+.select2-container--default .select2-results > .select2-results__options {
+  max-height: 350px !important;
+}
+
+.select2-results__option[aria-selected] {
+  font-size: 0.875rem;
+}
+
+/* Class that used in TinyMCE */
+.text-left {
+  text-align: left !important;
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+.text-right {
+  text-align: right !important;
+}
+
+.text-justify {
+  text-align: justify !important;
+}
+
+.text-underline {
+  text-decoration: underline !important;
+}
+
+.text-strikethrough {
+  text-decoration: line-through !important;
+}
+
+.text-indent {
+  text-indent: 30px !important;
+}
+
+.float-left-img img {
+  float: left !important;
+  margin: 0 20px 10px 0;
+}
+
+.float-right-img img {
+  float: right !important;
+  margin: 0 0 10px 20px;
+}
+
+/* footer */
+footer {
+  margin-top: 50px;
+}
+
+/* fontsize */
+p,
+ol,
+.table td,
+.table th,
+.table th,
+.table p,
+.table input,
+.card h6,
+label,
+input,
+select,
+textarea {
+  font-size: 0.875rem !important;
+}
+
+.table small {
+  font-size: 0.8125rem;
+}
+
+.btn {
+  font-size: 0.9rem;
+}
+
+.breadcrumb li {
+  font-size: 12px;
+}
+
+.card-filter label,
+.card-filter input,
+.card-filter .btn {
+  font-size: 13px;
+}
+
+/* custom css */
+
+/* dropdown no arrow */
+.dropdown.no-arrow a:active,
+.dropdown.no-arrow button:active {
+  border: none;
+  outline: none;
+  color: initial;
+  background-color: #e5e9f0;
+}
+
+/* disabled button */
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* input date */
+.form-group {
+  border: none;
+  box-sizing: border-box;
+  outline: 0;
+  position: relative;
+  width: 100%;
+}
+
+.date-pick::-webkit-calendar-picker-indicator {
+  background: transparent;
+  bottom: 0;
+  color: transparent;
+  cursor: pointer;
+  height: auto;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: auto;
+}
+
+.bg-dark {
+  background-color: #2e3440 !important;
+}
+
+.bg-secondary {
+  background-color: #898eba !important;
+}
+
+.btn-draft {
+  color: #3a3b45;
+  background-color: #f0edff;
+  border-color: #f0edff;
+}
+
+.btn-draft:hover {
+  color: #3a3b45;
+  background-color: #dde2f1;
+  border-color: #d4daed;
+}
+
+.btn-back {
+  color: #3a3b45;
+  border-color: #8886bb;
+}
+
+.btn-back:hover {
+  color: #3a3b45;
+  background-color: #f0edff;
+  border-color: #f0edff;
+}
+
+.breadcrumb {
+  padding: 0rem 0.3rem;
+  background-color: transparent;
+}
+
+.select-inline {
+  display: inline;
+  margin-right: 10px;
+  max-width: 300px;
+}
+
+::placeholder {
+  /* Chrome, Firefox, Opera, Safari 10.1+ */
+  font-style: italic !important;
+  font-size: 0.9rem;
+}
+
+.img-thumb-list {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+}
+
+.image {
+  width: 100%;
+  max-height: 270px;
+  object-fit: scale-down;
+}
+
+.img-show {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+}
+
+.custom-file-label {
+  overflow: hidden;
+}
+
+.img-preview {
+  width: 200px;
+  height: 200px;
+  object-fit: scale-down;
+}
+
+.img-preview-profile {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+}
+
+.nav-link .img-profile {
+  height: 2rem;
+  object-fit: cover;
+  width: 2rem;
+}
+
+@media (max-width: 768px) {
+  .card-img {
+    width: 75%;
+  }
+}
+
+/* additional css to current project*/

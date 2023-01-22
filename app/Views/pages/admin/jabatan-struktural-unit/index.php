@@ -1,0 +1,306 @@
+<?= $this->extend('layouts/admin'); ?>
+
+<?= $this->section('title'); ?>
+<?= $title ?>
+<?= $this->endSection(); ?>
+
+<?= $this->section('content'); ?>
+
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-3">
+  <h1 class="h3 text-gray-800"><?= $title ?></h1>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+      <li class="breadcrumb-item"><a href="#">Master Data</a></li>
+      <li class="breadcrumb-item active" aria-current="page"><?= $title ?></li>
+    </ol>
+  </nav>
+</div>
+
+<!-- Create Button -->
+<div class="row">
+  <div class="col-md">
+    <a href="javascript:void(0)" class="btn btn-primary shadow-sm mb-3" onclick="createData()">
+      <i class=" fas fa-plus-circle"></i>
+      <span>Tambah <?= $title ?></span>
+    </a>
+    <a href="<?= base_url('jabatan-struktural-unit/import') ?>" class="btn btn-success shadow-sm mb-3">
+      <i class="fas fa-plus-circle"></i>
+      <span>Import Excel</span>
+    </a>
+  </div>
+</div>
+
+<!-- alert -->
+<?= $this->include('includes/_alert') ?>
+
+<!-- Page Content -->
+<div class="row">
+  <div class="col-md-12">
+    <div class="card shadow mb-3">
+      <div class="card-header text-center">
+        <h6 class="m-0 font-weight-bold text-primary">Daftar <?= $title ?></h6>
+      </div>
+      <div class="card-body table-responsive">
+        <table class="table table-hover" id="myTable" style="overflow-x:auto;">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Unit</th>
+              <th scope="col">Jabatan Struktural</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="aiModal" tabindex="-1" role="dialog" aria-labelledby="aiModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="aiModalLabel">...</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="form" action="" method="post">
+          <input type="hidden" name="id" id="id">
+          <div class="form-group">
+            <label for="id_unit">Unit</label>
+            <?= form_dropdown('id_unit', getDropdownList('unit', ['id', 'nama_unit'], '', '- Pilih Unit -', 'nama_unit', 'asc', ''), set_value('id_unit'), ['class' => 'form-control select2-unit', 'id' => 'id_unit', 'style' => 'width:100%']) ?>
+          </div>
+          <div class="form-group">
+            <label for="id_jabatan_struktural">Jabatan Struktural</label>
+            <?= form_dropdown('id_jabatan_struktural', getDropdownList('jabatan_struktural', ['id', 'nama_jabatan_struktural'], '', '- Pilih Jabatan Struktural -', 'nama_jabatan_struktural', 'asc', ''), set_value('id_jabatan_struktural'), ['class' => 'form-control select2-jabatan_struktural', 'id' => 'id_jabatan_struktural', 'style' => 'width:100%']) ?>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+            <button type="submit" id="submit" class="btn btn-primary">Create</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<?= $this->endSection(); ?>
+
+<?= $this->section('append-style'); ?>
+<link rel="stylesheet" href="<?= base_url() ?>/assets/backend/libs/sbadmin2/vendor/datatables/dataTables.bootstrap4.min.css">
+<?= $this->endSection(); ?>
+
+<?= $this->section('append-script'); ?>
+<!-- datatable js -->
+<script src="<?= base_url() ?>/assets/backend/libs/sbadmin2/vendor/datatables/jquery.dataTables.min.js"></script>
+<script src="<?= base_url() ?>/assets/backend/libs/sbadmin2/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+<script>
+  $(document).ready(function() {
+    // datatable
+    table = $('#myTable').DataTable({
+      processing: true,
+      serverSide: true,
+      order: [],
+      ajax: {
+        url: "<?= base_url('jabatan-struktural-unit/ajax_list') ?>",
+        type: "POST",
+      },
+      //optional
+      lengthMenu: [
+        [100, 150, 200],
+        [100, 150, 200]
+      ],
+      columnDefs: [{
+        targets: [0, 3],
+        orderable: false,
+      }, ],
+    });
+    // select2 unit
+    $('.select2-unit').select2({
+      ajax: {
+        url: "<?= base_url('unit-relation/ajax_select2') ?>",
+        type: "post",
+        dataType: 'json',
+        delay: 250,
+        data: function(params) {
+          return {
+            searchTerm: params.term // search term
+          };
+        },
+        processResults: function(response) {
+          return {
+            results: response
+          };
+        },
+        cache: true
+      }
+    });
+    // select2 jabatan-struktural
+    $('.select2-jabatan_struktural').select2({
+      ajax: {
+        url: "<?= base_url('jabatan-struktural/ajax_select2') ?>",
+        type: "post",
+        dataType: 'json',
+        delay: 250,
+        data: function(params) {
+          return {
+            searchTerm: params.term // search term
+          };
+        },
+        processResults: function(response) {
+          return {
+            results: response
+          };
+        },
+        cache: true
+      }
+    });
+  });
+
+  // set url form
+  var url;
+
+  function submitForm(method, id = null) {
+
+    // remove form error message
+    $('.form-text').remove();
+
+    if (method == 'insert') {
+      url = <?= json_encode(base_url('jabatan-struktural-unit/create')) ?>;
+    }
+    if (method == 'update') {
+      url = <?= json_encode(base_url()) ?> + `/jabatan-struktural-unit/update/${id}`;
+    }
+
+  }
+
+  // handle submit form
+  $('#form').submit(function(e) {
+
+    e.preventDefault();
+    let formData = new FormData(this);
+
+    $.ajax({
+      method: "POST",
+      url: url,
+      data: formData,
+      cache: false,
+      processData: false,
+      contentType: false,
+      success: function(data) {
+        let obj = $.parseJSON(data);
+
+        if (obj.status == 200) {
+          $('#aiModal').modal('hide')
+          table.ajax.reload(null, false);
+          tata.success('Success', obj.message)
+        } else {
+          tata.error('Error', obj.message)
+          removeValidation()
+
+          let error = obj.data.errors;
+          if (error['id_unit']) {
+            $('select[name=id_unit] + .select2 .select2-selection--single').addClass('is-invalid');
+            $('select[name=id_unit] + .select2 .select2-selection--single').after(`<div class="invalid-feedback">${error['id_unit']}</div>`);
+          }
+          if (error['id_jabatan_struktural']) {
+            $('select[name=id_jabatan_struktural] + .select2 .select2-selection--single').addClass('is-invalid');
+            $('select[name=id_jabatan_struktural] + .select2 .select2-selection--single').after(`<div class="invalid-feedback">${error['id_jabatan_struktural']}</div>`);
+          }
+        }
+
+      },
+    });
+
+  });
+
+  // ajax Create
+  function createData() {
+    removeValidation()
+    $('#form')[0].reset();
+    $('#id').val('');
+    $('span#select2-id_unit-container').html('-Pilih Unit-');
+    $('span#select2-id_jabatan_struktural-container').html('-Pilih Jabatan Struktural-');
+
+    // change text
+    $('#aiModalLabel').html('Tambah Jabatan');
+    $('.modal-footer button[type=submit]').html('Create');
+
+    $('#aiModal').modal('show');
+
+    submitForm('insert');
+  }
+
+  // ajax Update
+  function updateData(id) {
+    removeValidation()
+    $('#form')[0].reset();
+
+    // change text
+    $('#aiModalLabel').html('Edit Jabatan');
+    $('.modal-footer button[type=submit]').html('Update');
+
+    $.ajax({
+      method: 'POST',
+      url: <?= json_encode(base_url()) ?> + `/jabatan-struktural-unit/update/${id}`,
+      cache: false,
+      success: function(data) {
+        data = JSON.parse(data);
+        console.log(data);
+        $('.modal-body input[name=id]').val(data.id);
+        $('.modal-body select[name=id_unit]').val(data.id_unit).trigger('change');
+        $('span#select2-id_unit-container').html(data.nama_unit);
+        $('.modal-body select[name=id_jabatan_struktural]').val(data.id_jabatan_struktural).trigger('change');
+        $('span#select2-id_jabatan_struktural-container').html(data.id_jabatan_struktural);
+
+        $('#aiModal').modal('show');
+      },
+      error: function(xhr, status, error) {
+        alert(error);
+      },
+    });
+
+    submitForm('update', id);
+  }
+
+  // ajax Delete
+  function destroyData(id) {
+    var x = confirm('Apakah anda yakin menghapus data?');
+    if (x) {
+      $.ajax({
+        method: "POST",
+        url: <?= json_encode(base_url()) ?> + `/jabatan-struktural-unit/delete/${id}`,
+        data: {
+          id: id
+        },
+        cache: false,
+        success: function(data) {
+          let obj = $.parseJSON(data);
+          table.ajax.reload(null, false);
+          tata.success('Success', obj.message)
+        },
+        error: function(xhr, status, error) {
+          alert(error);
+        },
+      });
+    }
+  }
+
+  // set focus on shown modal 
+  $('#aiModal').on('shown.bs.modal', function() {
+    $('input[name=id_unit]').trigger('focus')
+  })
+
+  function removeValidation() {
+    $('form').find('.is-invalid').removeClass('is-invalid');
+    $('form').find('.invalid-feedback').remove();
+  }
+</script>
+<?= $this->endSection(); ?>
