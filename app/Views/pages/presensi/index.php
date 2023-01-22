@@ -229,7 +229,7 @@
             <!-- <h5 class="font-semibold text-lg"></h5> -->
             <ul class="list-disc list-inside ">
               <li class="mb-2">
-                Anda telah dialihkan (redirect) ke presensi.unw.ac.id 
+                Anda telah dialihkan (redirect) ke presensi.unw.ac.id
               </li>
               <li class="mb-2">
                 Link presensi.unw.<span style="font-weight: bold;">my</span>.id sudah tidak digunakan lagi dan berubah menjadi presensi.unw.<span style="font-weight: bold;">ac</span>.id
@@ -241,6 +241,10 @@
                 Jika sebelumnya telah menambahkan shortcut di handphone maka disarankan untuk membuat shortcut baru lagi karena shortcut yang lama tidak akan bisa diakses lagi jika sudah tidak ada redirect
               </li>
             </ul>
+          </div>
+          <!-- Modal footer -->
+          <div class="flex items-center p-4 rounded-b border-t border-gray-200 dark:border-gray-600">
+            <button data-modal="hideModalInfo" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">Close</button>
           </div>
         </div>
       </div>
