@@ -32,8 +32,6 @@ class PegawaiDokumen extends AdminBaseController
 				$no++;
 				$row = [];
 				$row[] = $no;
-
-				if (!empty($list->dokumen) && file_exists("assets/files/pegawai-dokumen/$list->dokumen")) {
 					$pathtofile = base_url("assets/files/pegawai-dokumen/$list->dokumen");
 					$row[] = !empty($list->nama_dokumen) ? $list->nama_dokumen : '-';
 					$row[] = '
@@ -47,17 +45,12 @@ class PegawaiDokumen extends AdminBaseController
 						<i class="fas fa-trash"></i>
 					</a>
 					';
-				} else {
-					$pathtofile = base_url("assets/files/pegawai-dokumen/$list->file_reviewer");
-					$row[] = !empty($list->nama_dokumen) ? $list->nama_dokumen : '-';
-					$row[] = '';
-				}
 				$data[] = $row;
 			}
 			$output = [
 				"draw" => $this->request->getPost('draw'),
-				"recordsTotal" => $this->PegawaiDokumenModel->count_all(),
-				"recordsFiltered" => $this->PegawaiDokumenModel->count_filtered(),
+				"recordsTotal" => $this->PegawaiDokumenModel->count_all(['id_pegawai' => $idPegawai]),
+				"recordsFiltered" => $this->PegawaiDokumenModel->count_filtered(['id_pegawai' => $idPegawai]),
 				"data" => $data
 			];
 			echo json_encode($output);
