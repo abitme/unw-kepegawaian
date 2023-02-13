@@ -189,7 +189,7 @@
     $('#form')[0].reset();
 
     // change text
-    $('#aiModalLabel').html('Edit Validasi Lupa Presensi');
+    $('#aiModalLabel').html('Edit Validasi Izin Presensi');
     $('.modal-footer button[type=submit]').html('Update');
 
     $.ajax({
