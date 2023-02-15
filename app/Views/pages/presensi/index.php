@@ -264,11 +264,11 @@
 <!-- webcam -->
 <script src="<?= base_url() ?>/assets/backend/libs/webcam-easy/webcam-easy.min.js"></script>
 <script>
-  const modalInfo = new Modal(document.getElementById('modalInfo'));
-  modalInfo.show();
-  $('button[data-modal="hideModalInfo"]').on('click', function() {
-    modalInfo.hide();
-  });
+  // const modalInfo = new Modal(document.getElementById('modalInfo'));
+  // modalInfo.show();
+  // $('button[data-modal="hideModalInfo"]').on('click', function() {
+  //   modalInfo.hide();
+  // });
 
   const modal = new Modal(document.getElementById('modalEl'));
   $('button[data-modal="show"]').on('click', function() {
