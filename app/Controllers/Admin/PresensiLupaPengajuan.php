@@ -17,9 +17,6 @@ class PresensiLupaPengajuan extends AdminBaseController
 		$this->PresensiLupaPengajuanModel = new PresensiLupaPengajuanModel();
 
 		$this->menuSlug = 'presensi-lupa-pengajuan';
-		if (!is_allow('', $this->menuSlug)) {
-			throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
-		}
 
 		$pegawai = $this->db->table('users')->select('id_pegawai')->where('id', session('user_id'))->get()->getRow();
 		$this->id_pegawai = $pegawai->id_pegawai ?? '';
@@ -41,12 +38,13 @@ class PresensiLupaPengajuan extends AdminBaseController
 			foreach ($lists as $list) {
 				$no++;
 				$row = [];
+				$statusAt = $list->status_at != null ? \date('d/m/Y H:i', \strtotime($list->status_at)) : '-';
 				$row[] = $no;
 				$row[] = $list->nama;
 				$row[] = $list->tanggal;
 				$row[] = $list->jam_masuk;
 				$row[] = $list->jam_pulang;
-				$row[] = $list->status;
+				$row[] = "$list->status </br> <small>$statusAt</small>";
 				if (checkGroupUser([1])) {
 					$row[] = '
 						<a href="javascript:void(0)" class="btn btn-sm btn-success" onclick="updateData(' . "'" . $list->id . "'" . ')">
@@ -156,6 +154,7 @@ class PresensiLupaPengajuan extends AdminBaseController
 			'jam_masuk' => $input->jam_masuk,
 			'jam_pulang' => $input->jam_pulang,
 			'status' => 'Menunggu',
+			'status_at' => \date('Y-m-d H:i'),
 		];
 		$this->db->table('presensi_lupa')->insert($data);
 

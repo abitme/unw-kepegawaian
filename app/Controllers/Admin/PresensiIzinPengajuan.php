@@ -17,9 +17,6 @@ class PresensiIzinPengajuan extends AdminBaseController
 		$this->PresensiIzinPengajuanModel = new PresensiIzinPengajuanModel();
 
 		$this->menuSlug = 'presensi-izin-pengajuan';
-		if (!is_allow('', $this->menuSlug)) {
-			throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
-		}
 
 		$pegawai = $this->db->table('users')->select('id_pegawai')->where('id', session('user_id'))->get()->getRow();
 		$this->id_pegawai = $pegawai->id_pegawai ?? '';
@@ -40,6 +37,8 @@ class PresensiIzinPengajuan extends AdminBaseController
 			$no = $this->request->getPost("start");
 			foreach ($lists as $list) {
 				$no++;
+				$status1At = $list->status1_at != null ? \date('d/m/Y H:i', \strtotime($list->status1_at)) : '-';
+				$status2At = $list->status2_at != null ? \date('d/m/Y H:i', \strtotime($list->status2_at)) : '-';
 				$row = [];
 				$row[] = $no;
 				$row[] = $list->nama;
@@ -47,8 +46,8 @@ class PresensiIzinPengajuan extends AdminBaseController
 				$row[] = $list->jam_masuk;
 				$row[] = $list->jam_pulang;
 				$row[] = $list->keterangan;
-				$row[] = $list->status1;
-				$row[] = $list->status2;
+				$row[] = "$list->status1 </br> <small>$status1At</small>";
+				$row[] = "$list->status1 </br> <small>$status2At</small>";
 				if (checkGroupUser([1])) {
 					$row[] = '
 						<a href="javascript:void(0)" class="btn btn-sm btn-success" onclick="updateData(' . "'" . $list->id . "'" . ')">
@@ -102,6 +101,16 @@ class PresensiIzinPengajuan extends AdminBaseController
 		// set input data
 		$input = (object) $this->request->getPost();
 		$today = date('N', \strtotime($input->tanggal));
+
+		// cek harus sudah presensi masuk
+		if (!$this->db->table('presensi')->select('id')->where('id_pegawai', $this->user->id_pegawai)->where('tipe', 'Masuk')->like('waktu', $input->tanggal)->get()->getRow()) {
+			$response = [
+				'status' => false,
+				'message' => 'Anda belum melakukan presensi masuk pada tanggal tersebut',
+			];
+			echo json_encode($response);
+			return false;
+		}
 
 		$jadwalPegawai = $this->db->table('jadwal_pegawai')->where('id_pegawai', $this->id_pegawai)->get()->getRow();
 		$jadwalAutoPegawai = $this->db->table('jadwal_auto_pegawai')->where('id_pegawai', $this->id_pegawai)->get()->getRow();
@@ -160,6 +169,8 @@ class PresensiIzinPengajuan extends AdminBaseController
 			'keterangan' => $input->keterangan,
 			'status1' => 'Menunggu',
 			'status2' => 'Menunggu',
+			'status1_at' => \date('Y-m-d H:i'),
+			'status2_at' => \date('Y-m-d H:i'),
 		];
 		$this->db->table('presensi_izin')->insert($data);
 

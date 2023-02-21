@@ -118,6 +118,7 @@ class PresensiIzinValidasi extends AdminBaseController
 		if ($this->id_pegawai != $konfigurasiPresensi->id_pegawai_verifikasi_akhir && !checkGroupUser([1])) {
 			$data = [
 				'status1' => $input->status,
+				'status1_at' => \date('Y-m-d H:i'),
 			];
 		} else {
 			if ($dataDb->status1 != 'Diterima') {
@@ -130,6 +131,7 @@ class PresensiIzinValidasi extends AdminBaseController
 			}
 			$data = [
 				'status2' => $input->status,
+				'status2_at' => \date('Y-m-d H:i'),
 			];
 		}
 		$this->db->table('presensi_izin')->where('id', $id)->update($data);

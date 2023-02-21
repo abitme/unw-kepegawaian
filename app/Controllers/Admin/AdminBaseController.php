@@ -54,9 +54,14 @@ class AdminBaseController extends Controller
 		// load session
 		$this->session = \Config\Services::session();
 
+		$this->db = \Config\Database::connect();
+
 		// set id user for global controller
 		$this->user_id = $this->session->get('user_id');
 
+		$this->user = $this->db->table('users')->select('id, id_pegawai')->where('id', session('user_id'))->get()->getRow();
+		$this->pegawaiJabatan = $this->user ? $this->db->table('pegawai_jabatan_u_view')->select('nama_jabatan')->where('id_pegawai', $this->user->id_pegawai)->get()->getRow() : null;
+		
 		// set timezone to Asia/Bangkok
 		date_default_timezone_set('Asia/Bangkok');
 	}
@@ -64,9 +69,8 @@ class AdminBaseController extends Controller
 	public function view($pages, $data)
 	{
 		$data['menu'] = $this->menuSlug;
-		$pegawai = $this->db->table('users')->select('id_pegawai')->where('id', session('user_id'))->get()->getRow();
-		$pegawaiID = $pegawai->id_pegawai ?? '';
-		$verifikasiFormPresensi = $this->db->table('verifikasi_form_presensi')->where('id_pegawai_verifikasi', $pegawaiID)->get()->getRow();
+		$data['jabatanUser'] = $this->pegawaiJabatan;
+		$verifikasiFormPresensi = $this->db->table('verifikasi_form_presensi')->where('id_pegawai_verifikasi', $this->user->id_pegawai)->get()->getRow();
 		$data['isVerifying'] = $verifikasiFormPresensi ?? '';
 		return view($pages, $data);
 	}

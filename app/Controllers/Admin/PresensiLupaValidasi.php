@@ -110,6 +110,7 @@ class PresensiLupaValidasi extends AdminBaseController
 		// save data
 		$data = [
 			'status' => $input->status,
+			'status_at' => \date('Y-m-d H:i'),
 		];
 		$this->db->table('presensi_lupa')->where('id', $id)->update($data);
 

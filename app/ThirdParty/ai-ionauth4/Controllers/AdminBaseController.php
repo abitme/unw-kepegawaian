@@ -2,6 +2,10 @@
 
 namespace IonAuth\Controllers;
 
+use CodeIgniter\Controller;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
 /**
  * Class BaseController
  *
@@ -15,14 +19,11 @@ namespace IonAuth\Controllers;
  * @package CodeIgniter
  */
 
-use CodeIgniter\Controller;
-
 class AdminBaseController extends Controller
 {
-
 	/**
 	 * An array of helpers to be loaded automatically upon
-	 * class instantiation. These helpersF will be available
+	 * class instantiation. These helpers will be available
 	 * to all other controllers that extend BaseController.
 	 *
 	 * @var array
@@ -33,8 +34,12 @@ class AdminBaseController extends Controller
 
 	/**
 	 * Constructor.
+	 *
+	 * @param RequestInterface  $request
+	 * @param ResponseInterface $response
+	 * @param LoggerInterface   $logger
 	 */
-	public function initController(\CodeIgniter\HTTP\RequestInterface $request, \CodeIgniter\HTTP\ResponseInterface $response, \Psr\Log\LoggerInterface $logger)
+	public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
 	{
 		// Do Not Edit This Line
 		parent::initController($request, $response, $logger);
@@ -49,22 +54,30 @@ class AdminBaseController extends Controller
 		// load session
 		$this->session = \Config\Services::session();
 
-		// set id user for global controller
-		$this->user_id = $this->session->get('user_id');
-
 		// load ion auth libraries
 		$this->ionAuth = new \IonAuth\Libraries\IonAuth();
 		if (!$this->ionAuth->loggedIn()) {
 			return redirect()->to('/login');
 		}
+
+
+		$this->db = \Config\Database::connect();
+
+		// set id user for global controller
+		$this->user_id = $this->session->get('user_id');
+
+		$this->user = $this->db->table('users')->select('id, id_pegawai')->where('id', session('user_id'))->get()->getRow();
+		$this->pegawaiJabatan = $this->user ? $this->db->table('pegawai_jabatan_u_view')->select('nama_jabatan')->where('id_pegawai', $this->user->id_pegawai)->get()->getRow() : null;
+
+		// set timezone to Asia/Bangkok
+		date_default_timezone_set('Asia/Bangkok');
 	}
 
 	public function view($pages, $data)
 	{
 		$data['menu'] = $this->menuSlug;
-		$pegawai = $this->db->table('users')->select('id_pegawai')->where('id', session('user_id'))->get()->getRow();
-		$pegawaiID = $pegawai->id_pegawai ?? '';
-		$verifikasiFormPresensi = $this->db->table('verifikasi_form_presensi')->where('id_pegawai_verifikasi', $pegawaiID)->get()->getRow();
+		$data['jabatanUser'] = $this->pegawaiJabatan;
+		$verifikasiFormPresensi = $this->db->table('verifikasi_form_presensi')->where('id_pegawai_verifikasi', $this->user->id_pegawai)->get()->getRow();
 		$data['isVerifying'] = $verifikasiFormPresensi ?? '';
 		return view($pages, $data);
 	}

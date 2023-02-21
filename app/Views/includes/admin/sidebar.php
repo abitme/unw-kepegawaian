@@ -155,23 +155,23 @@
                   }
                   // var_dump($subChild['link'] == 'presensi-lupa-validasi');
 
-                  if ($subChild['link'] == 'presensi-lupa-validasi') {
-                    $resultSubordinate = \getSubordinateID($user->id_pegawai);
-                    $idPegawai = \array_unique(array_merge($resultSubordinate['idPegawaiStruktual'], $resultSubordinate['idPegawaiBiasa']));
-                    if (!empty($idPegawai)) {
-                      $label = '';
-                      $label .= '<a class="collapse-item ' . $active . '" href="' . base_url($subChild['link']) . '">' . $subChild['label'] . '</a>';
-                      $submenu .= $label;
-                    }
-                  } else {
-                    $label = '';
-                    $label .= '<a class="collapse-item ' . $active . '" href="' . base_url($subChild['link']) . '">' . $subChild['label'] . '</a>';
-                    $submenu .= $label;
-                  }
+                  // if ($subChild['link'] == 'presensi-lupa-validasi') {
+                  //   $resultSubordinate = \getSubordinateID($user->id_pegawai);
+                  //   $idPegawai = \array_unique(array_merge($resultSubordinate['idPegawaiStruktual'], $resultSubordinate['idPegawaiBiasa']));
+                  //   if (!empty($idPegawai)) {
+                  //     $label = '';
+                  //     $label .= '<a class="collapse-item ' . $active . '" href="' . base_url($subChild['link']) . '">' . $subChild['label'] . '</a>';
+                  //     $submenu .= $label;
+                  //   }
+                  // } else {
+                  //   $label = '';
+                  //   $label .= '<a class="collapse-item ' . $active . '" href="' . base_url($subChild['link']) . '">' . $subChild['label'] . '</a>';
+                  //   $submenu .= $label;
+                  // }
 
-                  // $label = '';
-                  // $label .= '<a class="collapse-item ' . $active . '" href="' . base_url($subChild['link']) . '">' . $subChild['label'] . '</a>';
-                  // $submenu .= $label;
+                  $label = '';
+                  $label .= '<a class="collapse-item ' . $active . '" href="' . base_url($subChild['link']) . '">' . $subChild['label'] . '</a>';
+                  $submenu .= $label;
                 }
 
                 $submenu .= '</div> </div> </li>';
@@ -194,16 +194,16 @@
 
       ?>
 
-      <?php if (checkGroupUser([1]) || $isVerifying) : ?>
+      <li class="nav-item">
+        <a class="nav-link py-2" href="<?= base_url('presensi-lupa-pengajuan') ?>">
+          <i class="fas fa-fw fa-circle"></i>
+          <span>Pengajuan Lupa Presensi</span></a>
+      </li>
+      <?php if (checkGroupUser([1]) || isset($jabatanUser) && $jabatanUser && $jabatanUser->nama_jabatan == 'Tendik') : ?>
         <li class="nav-item">
-          <a class="nav-link py-2" href="<?= base_url('presensi-lupa-validasi') ?>">
+          <a class="nav-link py-2" href="<?= base_url('presensi-izin-pengajuan') ?>">
             <i class="fas fa-fw fa-circle"></i>
-            <span>Validasi Lupa Presensi</span></a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link py-2" href="<?= base_url('presensi-izin-validasi') ?>">
-            <i class="fas fa-fw fa-circle"></i>
-            <span>Validasi Izin Presensi</span></a>
+            <span>Pengajuan Izin Presensi</span></a>
         </li>
       <?php endif ?>
 
