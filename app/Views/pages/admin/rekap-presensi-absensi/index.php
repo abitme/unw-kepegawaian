@@ -154,7 +154,7 @@
               $selectHadir = $db->query("SELECT tanggal FROM view_rekap_presensi WHERE id_pegawai = $p->id AND tanggal BETWEEN '$tanggal_awal' AND '$tanggal_akhir' AND CASE WHEN DATE_FORMAT(tanggal, '%w') = 0 THEN 7 ELSE DATE_FORMAT(tanggal, '%w') END in (1, 2, 3, 4, 5) $notInHolidays $notInAbsen $notInLumsum0 $notInLumsum1")->getResultArray();
               $arrDateHadir = array_column($selectHadir, 'tanggal');
 
-              $hadir = $db->query("SELECT COUNT(*) as hadir FROM view_rekap_presensi WHERE id_pegawai = $p->id AND tanggal BETWEEN '$tanggal_awal' AND '$tanggal_akhir' $notInHolidays $notInAbsen $notInLumsum0")->getRow()->hadir;
+              $hadir = $db->query("SELECT COUNT(*) as hadir FROM view_rekap_presensi WHERE id_pegawai = $p->id AND tanggal BETWEEN '$tanggal_awal' AND '$tanggal_akhir' $notInHolidays $notInAbsen $notInLumsum0 $notInLumsum1")->getRow()->hadir;
               $izin = $db->query("SELECT COUNT(*) as izin FROM absensi WHERE id_pegawai = $p->id AND jenis_absensi = 'Izin' AND tanggal BETWEEN '$tanggal_awal' AND '$tanggal_akhir' AND CASE WHEN DATE_FORMAT(tanggal, '%w') = 0 THEN 7 ELSE DATE_FORMAT(tanggal, '%w') END in (1, 2, 3, 4, 5) $notInHolidays")->getRow()->izin;
               $tugasIzinBelajar = $db->query("SELECT COUNT(*) as tugasIzinBelajar FROM absensi WHERE id_pegawai = $p->id AND jenis_absensi = 'Tugas/Izin Belajar' AND tanggal BETWEEN '$tanggal_awal' AND '$tanggal_akhir' AND CASE WHEN DATE_FORMAT(tanggal, '%w') = 0 THEN 7 ELSE DATE_FORMAT(tanggal, '%w') END in (1, 2, 3, 4, 5) $notInHolidays")->getRow()->tugasIzinBelajar;
               $sakit = $db->query("SELECT COUNT(*) as sakit FROM absensi WHERE id_pegawai = $p->id AND jenis_absensi = 'Sakit' AND tanggal BETWEEN '$tanggal_awal' AND '$tanggal_akhir' AND CASE WHEN DATE_FORMAT(tanggal, '%w') = 0 THEN 7 ELSE DATE_FORMAT(tanggal, '%w') END in (1, 2, 3, 4, 5) $notInHolidays")->getRow()->sakit;
@@ -172,7 +172,7 @@
                 $dateFormatted = $date->format('Y-m-d');
                 $toleransiTerlambat = $db->query("SELECT durasi_toleransi FROM `toleransi_terlambat` WHERE '$dateFormatted' BETWEEN tanggal_mulai AND CASE WHEN tanggal_selesai IS NULL THEN CURDATE() + INTERVAL 1 YEAR ELSE tanggal_selesai END")->getRow();
                 $durasiToleransi = $toleransiTerlambat->durasi_toleransi ?? '00:00:00';
-                $terlambat += $db->query("SELECT COUNT(*) as terlambat FROM view_rekap_presensi WHERE id_pegawai = $p->id AND SUBSTRING_INDEX(SUBSTRING_INDEX(jam_masuk_pulang, ' - ', 1), ' - ', -1) > ADDTIME(SUBSTRING_INDEX(SUBSTRING_INDEX(jadwal_jam_masuk_pulang, ' - ', 1), ' - ', -1), '$durasiToleransi') AND tanggal = '$dateFormatted' $notInAbsen")->getRow()->terlambat;
+                $terlambat += $db->query("SELECT COUNT(*) as terlambat FROM view_rekap_presensi WHERE id_pegawai = $p->id AND SUBSTRING_INDEX(SUBSTRING_INDEX(jam_masuk_pulang, ' - ', 1), ' - ', -1) > ADDTIME(SUBSTRING_INDEX(SUBSTRING_INDEX(jadwal_jam_masuk_pulang, ' - ', 1), ' - ', -1), '$durasiToleransi') AND tanggal = '$dateFormatted' $notInHolidays $notInAbsen $notInLumsum0 $notInLumsum1")->getRow()->terlambat;
                 if ($date->format("N") == 6 || $date->format("N") == 7) {
                   array_push($arrDateWeekend, $dateFormatted);
                 }
@@ -183,11 +183,9 @@
               $tugasDinas = $db->query(" SELECT * FROM tugas_dinas WHERE id_pegawai=$p->id AND lumsum = false AND tanggal BETWEEN '$tanggal_awal' AND '$tanggal_akhir'")->getResult();
               $tugas_dinas_lumsum1 = $db->query("SELECT COUNT(*) as tugas_dinas_lumsum1 FROM tugas_dinas WHERE id_pegawai = $p->id AND lumsum = 1 AND tanggal BETWEEN '$tanggal_awal' AND '$tanggal_akhir' AND CASE WHEN DATE_FORMAT(tanggal, '%w') = 0 THEN 7 ELSE DATE_FORMAT(tanggal, '%w') END in (1, 2, 3, 4, 5) $notInHolidays $notInAbsen")->getRow()->tugas_dinas_lumsum1;
               $tugas_dinas_lumsum0 = $db->query("SELECT COUNT(*) as tugas_dinas_lumsum0 FROM tugas_dinas WHERE id_pegawai = $p->id AND lumsum = 0 AND tanggal BETWEEN '$tanggal_awal' AND '$tanggal_akhir' AND CASE WHEN DATE_FORMAT(tanggal, '%w') = 0 THEN 7 ELSE DATE_FORMAT(tanggal, '%w') END in (1, 2, 3, 4, 5) $notInHolidays $notInAbsen")->getRow()->tugas_dinas_lumsum0;
-              if ($tugasDinas) {
-                $durasiJamTugas = 0;
-                foreach ($tugasDinas as $t) {
-                  $durasiJamTugas += getWorkingHoursSimple($t->tanggal, $p->id);
-                }
+              $durasiJamTugasDinasLumsum0 = 0;
+              if ($selectLumsum0) {
+                $durasiJamTugasDinasLumsum0 = $db->query("SELECT SUM(TIME_TO_SEC(jadwal_timediff)/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND tanggal IN ('$implodeLumsum0')")->getRow()->total_hours ?? '0';
               }
 
               $jabatanStrukturalUser = $db->table('pegawai_jabatan_struktural_u_view')->select('nama_jabatan_struktural')->where('id_pegawai', $p->id)->get()->getRow();
@@ -226,11 +224,11 @@
 
               if ($isBetweenDifferentRule) {
                 // durasi jam kerja biasa
-                $durasiJamKerja1 = $db->query("SELECT SUM(TIME_TO_SEC(jam_timediff)/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND (alasan_pulang_cepat != 'Mengajar' OR  alasan_pulang_cepat IS NULL) AND tanggal BETWEEN '$tanggal_awal' AND '$konfigurasiPresensi->tanggal_mulai_presensi_dosen_sekali' - INTERVAL 1 DAY $notInLupaPresensi $notInIzin")->getRow()->total_hours ?? '0';
+                $durasiJamKerja1 = $db->query("SELECT SUM(TIME_TO_SEC(jam_timediff)/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND (alasan_pulang_cepat != 'Mengajar' OR  alasan_pulang_cepat IS NULL) AND tanggal BETWEEN '$tanggal_awal' AND '$konfigurasiPresensi->tanggal_mulai_presensi_dosen_sekali' - INTERVAL 1 DAY $notInLupaPresensi $notInIzin $notInHolidays $notInAbsen $notInLumsum0 $notInLumsum1")->getRow()->total_hours ?? '0';
                 // durasi jam kerja full sesuai jadwal jam kerja karena mengajar kelas regulaer diluar jam kerja
-                $durasiJamKerjaMengajar = $db->query("SELECT SUM(TIME_TO_SEC(jadwal_timediff)/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND alasan_pulang_cepat = 'Mengajar' AND tanggal BETWEEN '$tanggal_awal' AND '$konfigurasiPresensi->tanggal_mulai_presensi_dosen_sekali' - INTERVAL 1 DAY $notInLupaPresensi $notInIzin")->getRow()->total_hours ?? '0';
+                $durasiJamKerjaMengajar = $db->query("SELECT SUM(TIME_TO_SEC(jadwal_timediff)/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND alasan_pulang_cepat = 'Mengajar' AND tanggal BETWEEN '$tanggal_awal' AND '$konfigurasiPresensi->tanggal_mulai_presensi_dosen_sekali' - INTERVAL 1 DAY $notInLupaPresensi $notInIzin $notInHolidays $notInAbsen $notInLumsum0 $notInLumsum1")->getRow()->total_hours ?? '0';
                 // durasi ditambah 1 jam karena lupa absen pulang 
-                $durasiJamKerjaPlus1 = $db->query("SELECT SUM(TIME_TO_SEC('01:00:00.000000')/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND jam_timediff = '00:00:00.000000' AND tanggal BETWEEN '$tanggal_awal' AND '$konfigurasiPresensi->tanggal_mulai_presensi_dosen_sekali' - INTERVAL 1 DAY $notInLupaPresensi $notInIzin")->getRow()->total_hours ?? '0';
+                $durasiJamKerjaPlus1 = $db->query("SELECT SUM(TIME_TO_SEC('01:00:00.000000')/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND jam_timediff = '00:00:00.000000' AND tanggal BETWEEN '$tanggal_awal' AND '$konfigurasiPresensi->tanggal_mulai_presensi_dosen_sekali' - INTERVAL 1 DAY $notInLupaPresensi $notInIzin $notInHolidays $notInAbsen $notInLumsum0 $notInLumsum1")->getRow()->total_hours ?? '0';
                 // durasi ditambah durasi lupa presensi yang tervalidasi
                 $durasiJamKerjaLupaPresensi = $db->query("SELECT SUM(TIME_TO_SEC(jam_timediff)/3600) as total_hours FROM view_rekap_presensi_lupa WHERE id_pegawai = $p->id AND tanggal BETWEEN '$tanggal_awal' AND '$konfigurasiPresensi->tanggal_mulai_presensi_dosen_sekali' - INTERVAL 1 DAY")->getRow()->total_hours ?? '0';
                 // durasi ditambah durasi izin presensi yang tervalidasi
@@ -241,11 +239,11 @@
                   $durasiJamKerja2 = $db->query("SELECT SUM(TIME_TO_SEC(jadwal_timediff)/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND tanggal BETWEEN '$konfigurasiPresensi->tanggal_mulai_presensi_dosen_sekali' AND '$tanggal_akhir' $notInLupaPresensi")->getRow()->total_hours ?? '0';
                 } else {
                   // durasi jam kerja biasa
-                  $durasiJamKerja2 = $db->query("SELECT SUM(TIME_TO_SEC(jam_timediff)/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND (alasan_pulang_cepat != 'Mengajar' OR  alasan_pulang_cepat IS NULL) AND tanggal BETWEEN '$konfigurasiPresensi->tanggal_mulai_presensi_dosen_sekali' AND '$tanggal_akhir' $notInLupaPresensi $notInIzin")->getRow()->total_hours ?? '0';
+                  $durasiJamKerja2 = $db->query("SELECT SUM(TIME_TO_SEC(jam_timediff)/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND (alasan_pulang_cepat != 'Mengajar' OR  alasan_pulang_cepat IS NULL) AND tanggal BETWEEN '$konfigurasiPresensi->tanggal_mulai_presensi_dosen_sekali' AND '$tanggal_akhir' $notInLupaPresensi $notInIzin $notInHolidays $notInAbsen $notInLumsum0 $notInLumsum1")->getRow()->total_hours ?? '0';
                   // durasi jam kerja full sesuai jadwal jam kerja karena mengajar kelas regulaer diluar jam kerja
-                  $durasiJamKerjaMengajar = $db->query("SELECT SUM(TIME_TO_SEC(jadwal_timediff)/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND alasan_pulang_cepat = 'Mengajar' AND tanggal BETWEEN '$konfigurasiPresensi->tanggal_mulai_presensi_dosen_sekali' AND '$tanggal_akhir' $notInLupaPresensi $notInIzin")->getRow()->total_hours ?? '0';
+                  $durasiJamKerjaMengajar = $db->query("SELECT SUM(TIME_TO_SEC(jadwal_timediff)/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND alasan_pulang_cepat = 'Mengajar' AND tanggal BETWEEN '$konfigurasiPresensi->tanggal_mulai_presensi_dosen_sekali' AND '$tanggal_akhir' $notInLupaPresensi $notInIzin $notInHolidays $notInAbsen $notInLumsum0 $notInLumsum1")->getRow()->total_hours ?? '0';
                   // durasi ditambah 1 jam karena lupa absen pulang 
-                  $durasiJamKerjaPlus1 = $db->query("SELECT SUM(TIME_TO_SEC('01:00:00.000000')/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND jam_timediff = '00:00:00.000000' AND tanggal BETWEEN '$konfigurasiPresensi->tanggal_mulai_presensi_dosen_sekali' AND '$tanggal_akhir' $notInLupaPresensi $notInIzin")->getRow()->total_hours ?? '0';
+                  $durasiJamKerjaPlus1 = $db->query("SELECT SUM(TIME_TO_SEC('01:00:00.000000')/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND jam_timediff = '00:00:00.000000' AND tanggal BETWEEN '$konfigurasiPresensi->tanggal_mulai_presensi_dosen_sekali' AND '$tanggal_akhir' $notInLupaPresensi $notInIzin $notInHolidays $notInAbsen $notInLumsum0 $notInLumsum1")->getRow()->total_hours ?? '0';
                   // durasi ditambah durasi lupa presensi yang tervalidasi
                   $durasiJamKerjaLupaPresensi = $db->query("SELECT SUM(TIME_TO_SEC(jam_timediff)/3600) as total_hours FROM view_rekap_presensi_lupa WHERE id_pegawai = $p->id AND tanggal BETWEEN '$konfigurasiPresensi->tanggal_mulai_presensi_dosen_sekali' AND '$tanggal_akhir'")->getRow()->total_hours ?? '0';
                   // durasi ditambah durasi izin presensi yang tervalidasi
@@ -255,18 +253,18 @@
                 $durasiJamKerja = $durasiJamKerja1 + $durasiJamKerja2;
 
                 // durasi dikurangi durasi istirahat
-                $durasiJamKerjaKurangiIstirahat = $db->query("SELECT SUM(TIME_TO_SEC(jadwal_timediff_istirahat)/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND jam_timediff != '00:00:00.000000' AND SUBSTRING_INDEX(SUBSTRING_INDEX(jam_masuk_pulang, ' - ', 2), ' - ', -1) >= AddTime(SUBSTRING_INDEX(SUBSTRING_INDEX(jadwal_jam_istirahat, ' - ', 2), ' - ', -1), '00:01:00') AND tanggal BETWEEN '$konfigurasiPresensi->tanggal_mulai_durasi_jam_kerja_dikurangi_istirahat' AND '$tanggal_akhir' $notInLupaPresensi $notInIzin")->getRow()->total_hours ?? '0';
+                $durasiJamKerjaKurangiIstirahat = $db->query("SELECT SUM(TIME_TO_SEC(jadwal_timediff_istirahat)/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND jam_timediff != '00:00:00.000000' AND SUBSTRING_INDEX(SUBSTRING_INDEX(jam_masuk_pulang, ' - ', 2), ' - ', -1) >= AddTime(SUBSTRING_INDEX(SUBSTRING_INDEX(jadwal_jam_istirahat, ' - ', 2), ' - ', -1), '00:01:00') AND tanggal BETWEEN '$konfigurasiPresensi->tanggal_mulai_durasi_jam_kerja_dikurangi_istirahat' AND '$tanggal_akhir' $notInLupaPresensi $notInIzin $notInHolidays $notInAbsen $notInLumsum0 $notInLumsum1")->getRow()->total_hours ?? '0';
                 $durasiJamKerja -= $durasiJamKerjaKurangiIstirahat;
               } else {
                 if ($jabatanUser && $jabatanUser->nama_jabatan == 'Dosen' && $tanggal_awal >= $konfigurasiPresensi->tanggal_mulai_presensi_dosen_sekali) {
                   $durasiJamKerja = $db->query("SELECT SUM(TIME_TO_SEC(jadwal_timediff)/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND tanggal BETWEEN '$tanggal_awal' AND '$tanggal_akhir' $notInLupaPresensi")->getRow()->total_hours ?? '0';
                 } else {
                   // durasi jam kerja biasa
-                  $durasiJamKerja = $db->query("SELECT SUM(TIME_TO_SEC(jam_timediff)/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND (alasan_pulang_cepat != 'Mengajar' OR  alasan_pulang_cepat IS NULL) AND tanggal BETWEEN '$tanggal_awal' AND '$tanggal_akhir' $notInLupaPresensi $notInIzin")->getRow()->total_hours ?? '0';
+                  $durasiJamKerja = $db->query("SELECT SUM(TIME_TO_SEC(jam_timediff)/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND (alasan_pulang_cepat != 'Mengajar' OR  alasan_pulang_cepat IS NULL) AND tanggal BETWEEN '$tanggal_awal' AND '$tanggal_akhir' $notInLupaPresensi $notInIzin $notInHolidays $notInAbsen $notInLumsum0 $notInLumsum1")->getRow()->total_hours ?? '0';
                   // durasi jam kerja full sesuai jadwal jam kerja karena mengajar kelas regulaer diluar jam kerja
-                  $durasiJamKerjaMengajar = $db->query("SELECT SUM(TIME_TO_SEC(jadwal_timediff)/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND alasan_pulang_cepat = 'Mengajar' AND tanggal BETWEEN '$tanggal_awal' AND '$tanggal_akhir' $notInLupaPresensi $notInIzin")->getRow()->total_hours ?? '0';
+                  $durasiJamKerjaMengajar = $db->query("SELECT SUM(TIME_TO_SEC(jadwal_timediff)/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND alasan_pulang_cepat = 'Mengajar' AND tanggal BETWEEN '$tanggal_awal' AND '$tanggal_akhir' $notInLupaPresensi $notInIzin $notInHolidays $notInAbsen $notInLumsum0 $notInLumsum1")->getRow()->total_hours ?? '0';
                   // durasi ditambah 1 jam karena lupa absen pulang 
-                  $durasiJamKerjaPlus1 = $db->query("SELECT SUM(TIME_TO_SEC('01:00:00.000000')/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND jam_timediff = '00:00:00.000000' AND tanggal BETWEEN '$tanggal_awal' AND '$tanggal_akhir' $notInLupaPresensi $notInIzin")->getRow()->total_hours ?? '0';
+                  $durasiJamKerjaPlus1 = $db->query("SELECT SUM(TIME_TO_SEC('01:00:00.000000')/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND jam_timediff = '00:00:00.000000' AND tanggal BETWEEN '$tanggal_awal' AND '$tanggal_akhir' $notInLupaPresensi $notInIzin $notInHolidays $notInAbsen $notInLumsum0 $notInLumsum1")->getRow()->total_hours ?? '0';
                   // durasi ditambah durasi lupa presensi yang tervalidasi
                   $durasiJamKerjaLupaPresensi = $db->query("SELECT SUM(TIME_TO_SEC(jam_timediff)/3600) as total_hours FROM view_rekap_presensi_lupa WHERE id_pegawai = $p->id AND tanggal BETWEEN '$tanggal_awal' AND '$tanggal_akhir'")->getRow()->total_hours ?? '0';
                   // durasi ditambah durasi izin presensi yang tervalidasi
@@ -276,10 +274,11 @@
 
                 if ($tanggal_awal >= $konfigurasiPresensi->tanggal_mulai_durasi_jam_kerja_dikurangi_istirahat) {
                   // durasi dikurangi durasi istirahat
-                  $durasiJamKerjaKurangiIstirahat = $db->query("SELECT SUM(TIME_TO_SEC(jadwal_timediff_istirahat)/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND jam_timediff != '00:00:00.000000' AND SUBSTRING_INDEX(SUBSTRING_INDEX(jam_masuk_pulang, ' - ', 2), ' - ', -1) >= AddTime(SUBSTRING_INDEX(SUBSTRING_INDEX(jadwal_jam_istirahat, ' - ', 2), ' - ', -1), '00:01:00') AND tanggal BETWEEN '$tanggal_awal' AND '$tanggal_akhir' $notInLupaPresensi $notInIzin")->getRow()->total_hours ?? '0';
+                  $durasiJamKerjaKurangiIstirahat = $db->query("SELECT SUM(TIME_TO_SEC(jadwal_timediff_istirahat)/3600) as total_hours FROM view_rekap_presensi WHERE id_pegawai = $p->id AND jam_timediff != '00:00:00.000000' AND SUBSTRING_INDEX(SUBSTRING_INDEX(jam_masuk_pulang, ' - ', 2), ' - ', -1) >= AddTime(SUBSTRING_INDEX(SUBSTRING_INDEX(jadwal_jam_istirahat, ' - ', 2), ' - ', -1), '00:01:00') AND tanggal BETWEEN '$tanggal_awal' AND '$tanggal_akhir' $notInLupaPresensi $notInIzin $notInHolidays $notInAbsen $notInLumsum0 $notInLumsum1")->getRow()->total_hours ?? '0';
                   $durasiJamKerja -= $durasiJamKerjaKurangiIstirahat;
                 }
               }
+              $durasiJamKerja += $durasiJamTugasDinasLumsum0;
 
               $jadwalDurasiJamKerja = getWorkingHours($tanggal_awal, $tanggal_akhir, $p->id);
               if ($durasiJamKerja < $jadwalDurasiJamKerja) {
@@ -322,7 +321,7 @@
                 <td><?= $cuti ?></td>
                 <td><?= $alpha ?> <br> <?= implode(', ', $alphaDate) ?></td>
                 <td><?= $cutiDiambil ?></td>
-                <td class="td-terlambat"><?= $terlambat ?></td>
+                <td class="td-terlambat"><?= $terlambat  ?></td>
                 <td class="td-pulang-cepat"><?= $pulangCepat ?></td>
                 <td><?= number_format($durasiJamKerja, 2) ?></td>
                 <td><?= $durasiKerjaHari ?></td>
