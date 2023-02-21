@@ -298,7 +298,7 @@
                 $durasiKerjaHari = $totalWorkingDays;
               }
               $percentageKehadiran = floor((90 / 100) * $totalWorkingDays);
-              $tepatWaktu = $hadir - $terlambat;
+              $tepatWaktu = ($hadir + $tugas_dinas_lumsum1) - $terlambat;
               if ($tepatWaktu >= $percentageKehadiran) {
                 $bonusKehadiran = '<i class="fas fa-check-circle text-success"></i> <span class="d-none">Dapat</span>';
               } else {
