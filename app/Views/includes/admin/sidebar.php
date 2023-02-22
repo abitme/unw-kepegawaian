@@ -207,6 +207,19 @@
         </li>
       <?php endif ?>
 
+      <?php if (checkGroupUser([1]) || $isVerifying) : ?>
+        <li class="nav-item">
+          <a class="nav-link py-2" href="<?= base_url('presensi-lupa-validasi') ?>">
+            <i class="fas fa-fw fa-circle"></i>
+            <span>Validasi Lupa Presensi</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link py-2" href="<?= base_url('presensi-izin-validasi') ?>">
+            <i class="fas fa-fw fa-circle"></i>
+            <span>Validasi Izin Presensi</span></a>
+        </li>
+      <?php endif ?>
+
       <!-- Divider -->
       <hr class="sidebar-divider mt-3">
 
