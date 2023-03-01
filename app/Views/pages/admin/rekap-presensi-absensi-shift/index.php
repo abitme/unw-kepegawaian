@@ -137,7 +137,7 @@
               $cutiUmum = $db->query("SELECT COUNT(*) as cuti_umum FROM absensi WHERE id_pegawai = $p->id AND jenis_absensi = 'Cuti Umum' AND tanggal BETWEEN '$tanggal_awal' AND '$tanggal_akhir' AND CASE WHEN DATE_FORMAT(tanggal, '%w') = 0 THEN 7 ELSE DATE_FORMAT(tanggal, '%w') END in (1, 2, 3, 4, 5, 6, 7)")->getRow()->cuti_umum;
               $cutiTahunan = $db->query("SELECT COUNT(*) as cuti_tahunan FROM absensi WHERE id_pegawai = $p->id AND jenis_absensi = 'Cuti Tahunan' AND tanggal BETWEEN '$tanggal_awal' AND '$tanggal_akhir' AND CASE WHEN DATE_FORMAT(tanggal, '%w') = 0 THEN 7 ELSE DATE_FORMAT(tanggal, '%w') END in (1, 2, 3, 4, 5, 6, 7)")->getRow()->cuti_tahunan;
               $cutiSosial = $db->query("SELECT COUNT(*) as cuti_sosial FROM absensi WHERE id_pegawai = $p->id AND jenis_absensi = 'Cuti Sosial' AND tanggal BETWEEN '$tanggal_awal' AND '$tanggal_akhir' AND CASE WHEN DATE_FORMAT(tanggal, '%w') = 0 THEN 7 ELSE DATE_FORMAT(tanggal, '%w') END in (1, 2, 3, 4, 5, 6, 7)")->getRow()->cuti_sosial;
-              $cuti = $cutiUmum + $cutiTahunan;
+              $cuti = $cutiUmum + $cutiTahunan + $cutiSosial;
 
               $terlambat = 0;
               $begin = new DateTime($tanggal_awal);
@@ -171,7 +171,7 @@
                 <td><?= $hadir ?></td>
                 <td><?= $izin ?></td>
                 <td><?= $sakit ?></td>
-                <td><?= $cutiUmum ?></td>
+                <td><?= $cutiTahunan + $cutiUmum ?></td>
                 <td><?= $cutiSosial ?></td>
                 <td><?= $cuti ?></td>
                 <!-- <td><?= $cutiUmum + $izin ?></td> -->
