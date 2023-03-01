@@ -99,7 +99,7 @@
               <th>Hadir</th>
               <th>Izin</th>
               <th>Sakit</th>
-              <th>Cuti Umum</th>
+              <th>Cuti Tahunan</th>
               <th>Cuti Sosial</th>
               <th>Total Cuti</th>
               <!-- <th>Cuti Yang Telah Diambil</th> -->
