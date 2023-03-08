@@ -270,23 +270,6 @@ if ($pegawaiId) {
       <div class="card-body">
         <div class="row no-gutters align-items-center">
           <div class="col mr-2">
-            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Izin</div>
-            <div class="h5 mb-0 font-weight-bold text-gray-800"><?= isset($izin) ? number_format($izin, 0, ',', '.') : '-' ?>
-            </div>
-          </div>
-          <div class="col-auto">
-            <i class="fas fa-user fa-2x text-gray-300"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- Card -->
-  <div class="col-md-3 mb-4">
-    <div class="card border-left-primary shadow h-100 py-2">
-      <div class="card-body">
-        <div class="row no-gutters align-items-center">
-          <div class="col mr-2">
             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Tugas / Izin Belajar</div>
             <div class="h5 mb-0 font-weight-bold text-gray-800"><?= isset($tugasIzinBelajar) ? number_format($tugasIzinBelajar, 0, ',', '.') : '-' ?>
             </div>
@@ -388,22 +371,6 @@ if ($pegawaiId) {
       <div class="card-body">
         <div class="row no-gutters align-items-center">
           <div class="col mr-2">
-            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Cuti Umum</div>
-            <div class="h5 mb-0 font-weight-bold text-gray-800"><?= isset($cutiUmum) ? number_format($cutiUmum, 0, ',', '.') : '-' ?></div>
-          </div>
-          <div class="col-auto">
-            <i class="fas fa-user fa-2x text-gray-300"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- Card -->
-  <div class="col-md-3 mb-4">
-    <div class="card border-left-primary shadow h-100 py-2">
-      <div class="card-body">
-        <div class="row no-gutters align-items-center">
-          <div class="col mr-2">
             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Cuti Sosial</div>
             <div class="h5 mb-0 font-weight-bold text-gray-800"><?= isset($cutiSosial) ? number_format($cutiSosial, 0, ',', '.') : '-' ?></div>
           </div>
@@ -432,7 +399,7 @@ if ($pegawaiId) {
   </div>
 
   <!-- Card -->
-  <div class="col-md-6 mb-4">
+  <div class="col-md-3 mb-4">
     <div class="card border-left-primary shadow h-100 py-2">
       <div class="card-body">
         <div class="row no-gutters align-items-center">
@@ -449,7 +416,7 @@ if ($pegawaiId) {
     </div>
   </div>
   <!-- Card -->
-  <div class="col-md-6 mb-4">
+  <div class="col-md-3 mb-4">
     <div class="card border-left-primary shadow h-100 py-2">
       <div class="card-body">
         <div class="row no-gutters align-items-center">
